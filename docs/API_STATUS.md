@@ -4,9 +4,17 @@ No API has been implemented yet.
 
 ## Current stage
 
-Runtime/API presentation spike scaffold plus first npm/Toccata WASM source-level capability check.
+Runtime/API presentation spike scaffold plus first npm/Toccata WASM source/build/import capability checks.
 
-The first capability check validates that official `kaspanet/rusty-kaspa` branch `toccata` contains JS/WASM-facing covenant primitives. It does not yet prove WASM build, npm package consumption, live TN10 wRPC from Node, or JS transaction broadcast.
+The npm/WASM spike now validates that official `kaspanet/rusty-kaspa` branch `toccata`:
+
+- contains JS/WASM-facing covenant primitives;
+- builds a Node WASM package via `wasm-pack`;
+- imports from Node;
+- exposes covenant-related exports;
+- can construct `CovenantBinding`, `GenesisCovenantGroup`, and `TransactionOutput` with a covenant binding.
+
+It does not yet prove live TN10 wRPC from Node, JS transaction broadcast, or wrapping/publishing the built package as our own npm package.
 
 ## Planned Milestone 1 API shell
 

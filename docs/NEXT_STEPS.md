@@ -2,13 +2,13 @@
 
 ## Immediate
 
-1. Implement the next npm/WASM spike step: build or package the official Toccata WASM and import the covenant symbols from Node.
+1. Test live Node TN10 wRPC connectivity using the built official Toccata WASM package.
 
 ```text
 spikes/npm-toccata-wasm-capability/
 ```
 
-2. Then test live Node TN10 wRPC connectivity using the same runtime/package path.
+2. Investigate whether the built Toccata WASM package can be wrapped/published as our own npm package cleanly.
 
 3. Implement Rust spike:
 

@@ -133,18 +133,19 @@ NPX_SERVE_HEALTHCHECK
 |---|---:|---:|---:|
 | npm developer experience | High | Medium/High | High |
 | source-level Toccata WASM primitives | PASS | n/a | n/a |
-| direct Toccata primitive access | Source PASS, runtime UNKNOWN | Likely High | Likely High |
+| Toccata WASM Node build/import | PASS | n/a | n/a |
+| direct Toccata primitive access | Covenant primitives PASS, tx/write runtime UNKNOWN | Likely High | Likely High |
 | TN10 wRPC from runtime | Unknown | Likely | Likely |
-| covenant/KIP-20 support | Source PASS, runtime UNKNOWN | Likely | Likely |
+| covenant/KIP-20 support | Covenant primitives PASS, full workflow UNKNOWN | Likely | Likely |
 | curl/API smoke tests | High | High | High |
 | package publish complexity | Medium | Medium | High |
-| low-level correctness confidence | Unknown | High if official branch works | High if official branch works |
+| low-level correctness confidence | Promising, write path unknown | High if official branch works | High if official branch works |
 | fastest Milestone 1 | Medium | Medium | Low/Medium |
 | long-term app adoption | High | High | High |
 
 ## First spike result
 
-The first npm/Toccata WASM source-level capability check passed for official source presence:
+The npm/Toccata WASM spike has now passed source, build, import, and basic covenant-construction checks:
 
 ```text
 OFFICIAL_RUSTY_KASPA_TOCCATA_CLONE=PASS
@@ -154,9 +155,19 @@ NPM_TOCCATA_WASM_SOURCE_COVENANT_ID_HASH=PASS
 NPM_TOCCATA_WASM_SOURCE_TRANSACTION_OUTPUT_COVENANT=PASS
 NPM_TOCCATA_WASM_SOURCE_REEXPORTS_CONSENSUS=PASS
 NPM_TOCCATA_WASM_SOURCE_TN10_RPC_EXAMPLE=PASS
+NPM_TOCCATA_WASM_BUILD=PASS
+NPM_TOCCATA_WASM_IMPORT=PASS
+NPM_TOCCATA_WASM_EXPORT_CovenantBinding=PASS
+NPM_TOCCATA_WASM_EXPORT_GenesisCovenantGroup=PASS
+NPM_TOCCATA_WASM_EXPORT_TransactionOutput=PASS
+NPM_TOCCATA_WASM_EXPORT_RpcClient=PASS
+NPM_COVENANT_BINDING_CONSTRUCT=PASS
+NPM_GENESIS_COVENANT_GROUP_CONSTRUCT=PASS
+NPM_TRANSACTION_OUTPUT_COVENANT_CONSTRUCT=PASS
+NPM_BUILT_PACKAGE_VERDICT=VALIDATED
 ```
 
-This makes Option A more plausible than the earlier published-npm-package inspection suggested. It does **not** yet prove Option A is viable, because the WASM build/import/runtime path and live Node TN10 wRPC are still untested.
+This makes Option A materially plausible for the covenant primitive layer. It does **not** yet prove Option A is sufficient for the full API, because live Node TN10 wRPC, transaction build/sign/broadcast, and package wrapping/publishing remain untested.
 
 ## Current recommendation
 

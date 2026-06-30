@@ -33,6 +33,16 @@ else
   unknown NPM_TN10_WRPC_CONNECT
 fi
 
+if [ "${RUN_WASM_BUILD:-0}" = "1" ]; then
+  spikes/npm-toccata-wasm-capability/build-and-check-wasm.sh
+else
+  if [ -f /tmp/kaspa-toccata-api-spikes/rusty-kaspa-toccata/wasm/nodejs/kaspa/kaspa.js ]; then
+    KASPA_WASM_PKG=/tmp/kaspa-toccata-api-spikes/rusty-kaspa-toccata/wasm/nodejs/kaspa node spikes/npm-toccata-wasm-capability/check-built-package.js || true
+  else
+    unknown NPM_TOCCATA_WASM_BUILD "set RUN_WASM_BUILD=1 to run build"
+  fi
+fi
+
 # Rust capability checks remain pending.
 unknown RUST_TOCCATA_TX_VERSION
 unknown RUST_COVENANT_OUTPUT

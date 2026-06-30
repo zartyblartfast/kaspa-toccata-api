@@ -96,11 +96,7 @@ def main() -> int:
         emit(key, "PASS" if ok else "FAIL", str(path.relative_to(repo)))
         failed = failed or not ok
 
-    # These are deliberately not claimed by this first source-level spike.
-    emit("NPM_TOCCATA_WASM_BUILD", "UNKNOWN", "not attempted in source-level spike")
-    emit("NPM_TN10_WRPC_CONNECT", "UNKNOWN", "not attempted in source-level spike")
-    emit("NPM_TRANSACTION_BUILD_SIGN_BROADCAST_CAPABILITY", "UNKNOWN", "not attempted; write path requires later explicit safety gate")
-    emit("NPM_SPIKE_VERDICT", "PARTIAL" if not failed else "INVALIDATED")
+    emit("NPM_SOURCE_SPIKE_VERDICT", "VALIDATED" if not failed else "INVALIDATED")
     return 0 if not failed else 2
 
 
