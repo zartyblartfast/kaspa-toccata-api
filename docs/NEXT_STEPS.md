@@ -2,17 +2,13 @@
 
 ## Immediate
 
-1. Run the scaffold check:
-
-```bash
-scripts/spike-api-runtime-decision.sh
-```
-
-2. Implement npm/WASM spike:
+1. Implement the next npm/WASM spike step: build or package the official Toccata WASM and import the covenant symbols from Node.
 
 ```text
 spikes/npm-toccata-wasm-capability/
 ```
+
+2. Then test live Node TN10 wRPC connectivity using the same runtime/package path.
 
 3. Implement Rust spike:
 

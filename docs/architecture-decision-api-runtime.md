@@ -132,14 +132,31 @@ NPX_SERVE_HEALTHCHECK
 | Criterion | Option A: TS/npm + WASM | Option B: Rust API + npm client | Option C: npm wraps Rust binary |
 |---|---:|---:|---:|
 | npm developer experience | High | Medium/High | High |
-| direct Toccata primitive access | Unknown | Likely High | Likely High |
+| source-level Toccata WASM primitives | PASS | n/a | n/a |
+| direct Toccata primitive access | Source PASS, runtime UNKNOWN | Likely High | Likely High |
 | TN10 wRPC from runtime | Unknown | Likely | Likely |
-| covenant/KIP-20 support | Unknown but promising | Likely | Likely |
+| covenant/KIP-20 support | Source PASS, runtime UNKNOWN | Likely | Likely |
 | curl/API smoke tests | High | High | High |
 | package publish complexity | Medium | Medium | High |
 | low-level correctness confidence | Unknown | High if official branch works | High if official branch works |
 | fastest Milestone 1 | Medium | Medium | Low/Medium |
 | long-term app adoption | High | High | High |
+
+## First spike result
+
+The first npm/Toccata WASM source-level capability check passed for official source presence:
+
+```text
+OFFICIAL_RUSTY_KASPA_TOCCATA_CLONE=PASS
+NPM_TOCCATA_WASM_SOURCE_COVENANT_BINDING=PASS
+NPM_TOCCATA_WASM_SOURCE_GENESIS_COVENANT_GROUP=PASS
+NPM_TOCCATA_WASM_SOURCE_COVENANT_ID_HASH=PASS
+NPM_TOCCATA_WASM_SOURCE_TRANSACTION_OUTPUT_COVENANT=PASS
+NPM_TOCCATA_WASM_SOURCE_REEXPORTS_CONSENSUS=PASS
+NPM_TOCCATA_WASM_SOURCE_TN10_RPC_EXAMPLE=PASS
+```
+
+This makes Option A more plausible than the earlier published-npm-package inspection suggested. It does **not** yet prove Option A is viable, because the WASM build/import/runtime path and live Node TN10 wRPC are still untested.
 
 ## Current recommendation
 

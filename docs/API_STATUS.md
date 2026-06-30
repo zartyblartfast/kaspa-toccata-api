@@ -4,7 +4,9 @@ No API has been implemented yet.
 
 ## Current stage
 
-Runtime/API presentation spike scaffold.
+Runtime/API presentation spike scaffold plus first npm/Toccata WASM source-level capability check.
+
+The first capability check validates that official `kaspanet/rusty-kaspa` branch `toccata` contains JS/WASM-facing covenant primitives. It does not yet prove WASM build, npm package consumption, live TN10 wRPC from Node, or JS transaction broadcast.
 
 ## Planned Milestone 1 API shell
 

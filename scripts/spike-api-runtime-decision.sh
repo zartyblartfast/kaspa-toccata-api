@@ -21,13 +21,20 @@ else
   pass NO_STATIC_APP_FIXTURES
 fi
 
-# Real capability checks will be implemented inside the spike directories.
-unknown NPM_TOCCATA_WASM_BUILD
-unknown NPM_COVENANT_BINDING
-unknown NPM_GENESIS_COVENANT_GROUP
-unknown NPM_TN10_WRPC_CONNECT
+# First real capability check: source-level npm/Toccata WASM evidence.
+if [ -x spikes/npm-toccata-wasm-capability/check-source-capability.py ] || [ -f spikes/npm-toccata-wasm-capability/check-source-capability.py ]; then
+  python3 spikes/npm-toccata-wasm-capability/check-source-capability.py
+else
+  unknown NPM_TOCCATA_WASM_SOURCE_COVENANT_BINDING
+  unknown NPM_TOCCATA_WASM_SOURCE_GENESIS_COVENANT_GROUP
+  unknown NPM_TOCCATA_WASM_SOURCE_COVENANT_ID_HASH
+  unknown NPM_TOCCATA_WASM_SOURCE_TRANSACTION_OUTPUT_COVENANT
+  unknown NPM_TOCCATA_WASM_BUILD
+  unknown NPM_TN10_WRPC_CONNECT
+fi
+
+# Rust capability checks remain pending.
 unknown RUST_TOCCATA_TX_VERSION
 unknown RUST_COVENANT_OUTPUT
 unknown RUST_TN10_WRPC_CONNECT
-printf 'RECOMMENDED_RUNTIME=undecided
-'
+printf 'RECOMMENDED_RUNTIME=undecided\n'
