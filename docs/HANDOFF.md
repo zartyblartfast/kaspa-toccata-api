@@ -1,0 +1,61 @@
+# Handoff
+
+## Current milestone
+
+Stage 3 / Stage 4 transition.
+
+- Stage 3: runtime/API presentation decision matrix is drafted in `docs/architecture-decision-api-runtime.md`.
+- Stage 4: spike scaffold exists; actual capability code still needs implementation.
+
+## What works now
+
+- Repository scaffold exists.
+- Handoff docs exist.
+- Decision matrix exists.
+- Spike directories exist.
+- Guardrail script exists at `scripts/spike-api-runtime-decision.sh`.
+
+No API server has been implemented yet.
+
+## Last verified commands
+
+To be updated after running commands in this repo.
+
+Suggested first verification:
+
+```bash
+scripts/spike-api-runtime-decision.sh
+```
+
+## Important files
+
+```text
+docs/architecture-decision-api-runtime.md
+docs/DECISIONS.md
+docs/API_STATUS.md
+docs/NEXT_STEPS.md
+scripts/spike-api-runtime-decision.sh
+spikes/npm-toccata-wasm-capability/README.md
+spikes/rust-toccata-capability/README.md
+```
+
+## Current blockers / unknowns
+
+- Whether official `rusty-kaspa` `toccata` WASM can be built/consumed cleanly from a custom npm package.
+- Whether the API implementation should be TypeScript/npm-first, Rust service + npm wrapper/client, or hybrid.
+- Whether public TN10 wRPC/REST endpoints expose enough fields for all early read-path needs.
+- Exact dependency strategy for official `rusty-kaspa` `toccata` branch.
+
+## Next 3 actions
+
+1. Implement `spikes/npm-toccata-wasm-capability/` to prove TypeScript/WASM covenant primitives and TN10 connectivity.
+2. Implement `spikes/rust-toccata-capability/` to prove Rust Toccata transaction/covenant primitives and TN10 connectivity.
+3. Update `docs/architecture-decision-api-runtime.md` with PASS/FAIL outputs and choose the runtime for Milestone 1.
+
+## Do not regress
+
+- API before app.
+- No static app proof/result fixtures.
+- Curl/scripts prove API milestones.
+- Roulette app consumes API/client only.
+- Do not copy old `kaspa-fair-foundation` static JSON workflow.

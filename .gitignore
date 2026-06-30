@@ -1,0 +1,24 @@
+# dependencies
+node_modules/
+target/
+
+# build outputs
+dist/
+build/
+
+# local env/secrets
+.env
+.env.*
+*.pem
+*.key
+*.seed
+*.wallet
+
+# generated artifacts
+artifacts/generated/
+*.log
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
