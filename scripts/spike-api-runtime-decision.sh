@@ -43,6 +43,12 @@ else
   fi
 fi
 
+if [ "${RUN_TN10_WRPC:-0}" = "1" ]; then
+  KASPA_WASM_PKG=/tmp/kaspa-toccata-api-spikes/rusty-kaspa-toccata/wasm/nodejs/kaspa node spikes/npm-toccata-wasm-capability/check-tn10-wrpc.js || true
+else
+  unknown NPM_TN10_WRPC_CONNECT "set RUN_TN10_WRPC=1 to run live network check"
+fi
+
 # Rust capability checks remain pending.
 unknown RUST_TOCCATA_TX_VERSION
 unknown RUST_COVENANT_OUTPUT

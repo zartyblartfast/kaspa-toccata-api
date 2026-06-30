@@ -49,6 +49,24 @@ Build/import/runtime check:
 spikes/npm-toccata-wasm-capability/build-and-check-wasm.sh
 ```
 
+Live TN10 wRPC check:
+
+```bash
+KASPA_WRPC_TIMEOUT_MS=60000 node spikes/npm-toccata-wasm-capability/check-tn10-wrpc.js
+```
+
+Combined scaffold/runtime check without live network:
+
+```bash
+scripts/spike-api-runtime-decision.sh
+```
+
+Combined check with live TN10 network:
+
+```bash
+RUN_TN10_WRPC=1 scripts/spike-api-runtime-decision.sh
+```
+
 Build prerequisites discovered:
 
 ```text
@@ -97,7 +115,22 @@ NPM_TRANSACTION_OUTPUT_COVENANT_CONSTRUCT=PASS
 NPM_BUILT_PACKAGE_VERDICT=VALIDATED
 ```
 
-## Verdict: VALIDATED for build/import/covenant primitives; PARTIAL for full npm runtime
+Live TN10 wRPC check:
+
+```text
+NPM_TN10_WRPC_IMPORTS=PASS
+NPM_TN10_WRPC_REQUIRED_EXPORTS=PASS
+NPM_TN10_WRPC_RESOLVER_CONSTRUCT=PASS
+NPM_TN10_WRPC_RESOLVER_GET_URL=PASS # wss://vector-10.kaspa.green/kaspa/testnet-10/wrpc/borsh
+NPM_TN10_WRPC_CLIENT_CONSTRUCT=PASS
+NPM_TN10_WRPC_CONNECT=PASS # wss://muon-10.kaspa.blue/kaspa/testnet-10/wrpc/borsh
+NPM_TN10_WRPC_GET_SERVER_INFO=PASS # networkId=testnet-10 serverVersion=2.0.1 isSynced=true hasUtxoIndex=true
+NPM_TN10_WRPC_GET_BLOCKDAG_INFO=PASS # live blockDAG data returned
+NPM_TN10_WRPC_DISCONNECT=PASS
+NPM_TN10_WRPC_VERDICT=VALIDATED
+```
+
+## Verdict: VALIDATED for source/build/import/covenant primitives and live TN10 read-only wRPC
 
 ### What worked
 
@@ -123,12 +156,14 @@ The built package imports successfully from Node and exposes/constructs:
 
 Runtime construction of `CovenantBinding`, `GenesisCovenantGroup`, and `TransactionOutput` with covenant binding passed.
 
+Live read-only TN10 wRPC also passed using public resolver/Borsh transport. The script resolved a public TN10 endpoint, connected, fetched server info, fetched live blockDAG info, and disconnected cleanly.
+
 ### What did not get proven yet
 
-- live Node wRPC connection to TN10.
 - Toccata transaction build/sign/broadcast from JS/TS.
 - packaging this built WASM as our own npm package.
+- full API service shape.
 
 ### Recommendation for the real build
 
-Continue the npm-first investigation. The npm path is now materially plausible for covenant primitives. The next npm spike should test live Node TN10 wRPC connectivity using the built official Toccata WASM package.
+The npm-first path is now strongly plausible for Milestone 1 and Milestone 3 read-only TN10 API work. Before choosing it for TN10 writes/covenant-enforced rounds, test JS/TS transaction construction/signing/broadcast and package wrapping/publishing.

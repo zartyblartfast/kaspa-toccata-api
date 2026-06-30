@@ -4,7 +4,7 @@ No API has been implemented yet.
 
 ## Current stage
 
-Runtime/API presentation spike scaffold plus first npm/Toccata WASM source/build/import capability checks.
+Runtime/API presentation spike scaffold plus npm/Toccata WASM source/build/import/covenant-construction/live-TN10-read capability checks.
 
 The npm/WASM spike now validates that official `kaspanet/rusty-kaspa` branch `toccata`:
 
@@ -12,9 +12,11 @@ The npm/WASM spike now validates that official `kaspanet/rusty-kaspa` branch `to
 - builds a Node WASM package via `wasm-pack`;
 - imports from Node;
 - exposes covenant-related exports;
-- can construct `CovenantBinding`, `GenesisCovenantGroup`, and `TransactionOutput` with a covenant binding.
+- can construct `CovenantBinding`, `GenesisCovenantGroup`, and `TransactionOutput` with a covenant binding;
+- can connect from Node to live TN10 wRPC via public resolver/Borsh transport;
+- can fetch live `getServerInfo()` and `getBlockDagInfo()` from TN10.
 
-It does not yet prove live TN10 wRPC from Node, JS transaction broadcast, or wrapping/publishing the built package as our own npm package.
+It does not yet prove JS/TS transaction build/sign/broadcast, wrapping/publishing the built package as our own npm package, or the full API service shape.
 
 ## Planned Milestone 1 API shell
 

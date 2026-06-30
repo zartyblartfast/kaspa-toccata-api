@@ -2,10 +2,10 @@
 
 ## Current milestone
 
-Stage 3 / Stage 4 transition.
+Stage 4 capability spike in progress; npm/WASM read-only path validated.
 
 - Stage 3: runtime/API presentation decision matrix is drafted in `docs/architecture-decision-api-runtime.md`.
-- Stage 4: spike scaffold exists; actual capability code still needs implementation.
+- Stage 4: npm/Toccata WASM source, build, import, covenant-construction, and live TN10 read-only wRPC checks pass.
 
 ## What works now
 
@@ -14,6 +14,10 @@ Stage 3 / Stage 4 transition.
 - Decision matrix exists.
 - Spike directories exist.
 - Guardrail script exists at `scripts/spike-api-runtime-decision.sh`.
+- Official `rusty-kaspa` `toccata` branch Node WASM package builds.
+- Node can import built Toccata WASM package.
+- Node can construct covenant primitives.
+- Node can connect to live TN10 wRPC and fetch server/blockDAG info.
 
 No API server has been implemented yet.
 
@@ -69,6 +73,27 @@ NPM_TRANSACTION_OUTPUT_COVENANT_CONSTRUCT=PASS
 NPM_BUILT_PACKAGE_VERDICT=VALIDATED
 ```
 
+Additional verified live-network command:
+
+```bash
+KASPA_WRPC_TIMEOUT_MS=60000 node spikes/npm-toccata-wasm-capability/check-tn10-wrpc.js
+```
+
+Output summary:
+
+```text
+NPM_TN10_WRPC_IMPORTS=PASS
+NPM_TN10_WRPC_REQUIRED_EXPORTS=PASS
+NPM_TN10_WRPC_RESOLVER_CONSTRUCT=PASS
+NPM_TN10_WRPC_RESOLVER_GET_URL=PASS # wss://vector-10.kaspa.green/kaspa/testnet-10/wrpc/borsh
+NPM_TN10_WRPC_CLIENT_CONSTRUCT=PASS
+NPM_TN10_WRPC_CONNECT=PASS # wss://muon-10.kaspa.blue/kaspa/testnet-10/wrpc/borsh
+NPM_TN10_WRPC_GET_SERVER_INFO=PASS # networkId=testnet-10 serverVersion=2.0.1 isSynced=true hasUtxoIndex=true
+NPM_TN10_WRPC_GET_BLOCKDAG_INFO=PASS # live blockDAG data returned
+NPM_TN10_WRPC_DISCONNECT=PASS
+NPM_TN10_WRPC_VERDICT=VALIDATED
+```
+
 ## Important files
 
 ```text
@@ -83,16 +108,16 @@ spikes/rust-toccata-capability/README.md
 
 ## Current blockers / unknowns
 
-- Whether official `rusty-kaspa` `toccata` WASM can be built/consumed cleanly from a custom npm package.
-- Whether the API implementation should be TypeScript/npm-first, Rust service + npm wrapper/client, or hybrid.
-- Whether public TN10 wRPC/REST endpoints expose enough fields for all early read-path needs.
+- Whether official `rusty-kaspa` `toccata` WASM can be wrapped/published cleanly from our own npm package.
+- Whether JS/TS can build/sign/broadcast the Toccata transactions needed for later write/covenant milestones.
+- Whether the API implementation should now proceed TypeScript/npm-first for Milestone 1/read-only TN10, or first compare with Rust.
 - Exact dependency strategy for official `rusty-kaspa` `toccata` branch.
 
 ## Next 3 actions
 
-1. Implement `spikes/npm-toccata-wasm-capability/` to prove TypeScript/WASM covenant primitives and TN10 connectivity.
-2. Implement `spikes/rust-toccata-capability/` to prove Rust Toccata transaction/covenant primitives and TN10 connectivity.
-3. Update `docs/architecture-decision-api-runtime.md` with PASS/FAIL outputs and choose the runtime for Milestone 1.
+1. Choose next path: package/wrap npm spike, JS/TS write capability spike, Rust comparison spike, or start Milestone 1 API shell using npm/WASM read-only TN10.
+2. If handing over to `/new`, start by loading `kaspa-toccata-api-workflow`, reading this file plus `docs/API_STATUS.md`, and running `scripts/spike-api-runtime-decision.sh`.
+3. If continuing implementation now, the lowest-risk API step is Milestone 1: `GET /v1/health`, `GET /v1/capabilities`, `GET /v1/network/status`, and `scripts/api-smoke.sh`.
 
 ## Do not regress
 

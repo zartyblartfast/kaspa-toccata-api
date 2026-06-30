@@ -134,8 +134,9 @@ NPX_SERVE_HEALTHCHECK
 | npm developer experience | High | Medium/High | High |
 | source-level Toccata WASM primitives | PASS | n/a | n/a |
 | Toccata WASM Node build/import | PASS | n/a | n/a |
+| Node live TN10 wRPC read | PASS | n/a | n/a |
 | direct Toccata primitive access | Covenant primitives PASS, tx/write runtime UNKNOWN | Likely High | Likely High |
-| TN10 wRPC from runtime | Unknown | Likely | Likely |
+| TN10 wRPC from runtime | PASS for Node read-only | Likely | Likely |
 | covenant/KIP-20 support | Covenant primitives PASS, full workflow UNKNOWN | Likely | Likely |
 | curl/API smoke tests | High | High | High |
 | package publish complexity | Medium | Medium | High |
@@ -164,10 +165,19 @@ NPM_TOCCATA_WASM_EXPORT_RpcClient=PASS
 NPM_COVENANT_BINDING_CONSTRUCT=PASS
 NPM_GENESIS_COVENANT_GROUP_CONSTRUCT=PASS
 NPM_TRANSACTION_OUTPUT_COVENANT_CONSTRUCT=PASS
-NPM_BUILT_PACKAGE_VERDICT=VALIDATED
+NPM_TN10_WRPC_IMPORTS=PASS
+NPM_TN10_WRPC_REQUIRED_EXPORTS=PASS
+NPM_TN10_WRPC_RESOLVER_CONSTRUCT=PASS
+NPM_TN10_WRPC_RESOLVER_GET_URL=PASS
+NPM_TN10_WRPC_CLIENT_CONSTRUCT=PASS
+NPM_TN10_WRPC_CONNECT=PASS
+NPM_TN10_WRPC_GET_SERVER_INFO=PASS
+NPM_TN10_WRPC_GET_BLOCKDAG_INFO=PASS
+NPM_TN10_WRPC_DISCONNECT=PASS
+NPM_TN10_WRPC_VERDICT=VALIDATED
 ```
 
-This makes Option A materially plausible for the covenant primitive layer. It does **not** yet prove Option A is sufficient for the full API, because live Node TN10 wRPC, transaction build/sign/broadcast, and package wrapping/publishing remain untested.
+This makes Option A strongly plausible for Milestone 1 and read-only Milestone 3. It does **not** yet prove Option A is sufficient for the full API, because transaction build/sign/broadcast and package wrapping/publishing remain untested.
 
 ## Current recommendation
 
