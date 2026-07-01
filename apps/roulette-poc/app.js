@@ -21,6 +21,11 @@ import { createToccataApiClient } from 'kaspa-toccata-api';
     busy: false,
     apiLog: {},
     flowchartSpec: null,
+    operation: {
+      label: 'Preparing live API connection',
+      detail: 'Reset will check health, capabilities, live TN10 network status, then commit the round before chips open.',
+      tone: 'idle',
+    },
   };
 
   const el = {
@@ -29,6 +34,9 @@ import { createToccataApiClient } from 'kaspa-toccata-api';
     roundStage: document.getElementById('roundStage'),
     tableHost: document.getElementById('tableHost'),
     stake: document.getElementById('stake'),
+    chipPresets: [...document.querySelectorAll('[data-chip-amount]')],
+    undoChipButton: document.getElementById('undoChipButton'),
+    clearChipsButton: document.getElementById('clearChipsButton'),
     selectionList: document.getElementById('selectionList'),
     resultValue: document.getElementById('resultValue'),
     resultNote: document.getElementById('resultNote'),
@@ -37,6 +45,7 @@ import { createToccataApiClient } from 'kaspa-toccata-api';
     liveProofStatusRoot: document.getElementById('liveProofStatusRoot'),
     claimLevel: document.getElementById('claimLevel'),
     flowchartRoot: document.getElementById('flowchartRoot'),
+    operationStatus: document.getElementById('operationStatus'),
   };
 
   boot();
@@ -44,6 +53,14 @@ import { createToccataApiClient } from 'kaspa-toccata-api';
   function boot() {
     el.spinButton.addEventListener('click', () => runSpin());
     el.resetButton.addEventListener('click', () => resetRound());
+    el.chipPresets.forEach((button) => {
+      button.addEventListener('click', () => {
+        el.stake.value = button.dataset.chipAmount || el.stake.value;
+        renderAll();
+      });
+    });
+    el.undoChipButton.addEventListener('click', () => removeLastSelection());
+    el.clearChipsButton.addEventListener('click', () => clearSelections());
     renderAll();
     loadFlowchartSpec()
       .catch((error) => {
@@ -65,6 +82,7 @@ import { createToccataApiClient } from 'kaspa-toccata-api';
   async function resetRound() {
     if (state.busy) return;
     state.busy = true;
+    setOperation('Starting new committed round', 'Reset is clearing local chip selections, then the app will call the live API. No substitute path is used.', 'busy');
     setStatus('Creating committed API round…', null);
     state.stage = 'boot';
     state.roundId = null;
@@ -80,23 +98,25 @@ import { createToccataApiClient } from 'kaspa-toccata-api';
     renderAll();
 
     try {
-      await remember('health', apiClient.health());
-      await remember('capabilities', apiClient.capabilities());
-      await remember('networkStatus', apiClient.networkStatus());
-      const created = await remember('createRound', apiClient.createRound({
+      await rememberStep('health', 'Checking API health', 'Quick local service check before a live round starts.', apiClient.health());
+      await rememberStep('capabilities', 'Reading capability flags', 'Confirming signing/broadcast remain disabled by default before the game opens.', apiClient.capabilities());
+      await rememberStep('networkStatus', 'Checking live TN10 network status', 'This can be the slow step on weak networks because the API is contacting TN10. Chips open only after this live status check completes.', apiClient.networkStatus());
+      const created = await rememberStep('createRound', 'Creating API round', 'Allocating the round ID that all later proof evidence will reference.', apiClient.createRound({
         game: 'roulette',
         tableId: 'roulette-poc',
         metadata: { app: 'roulette-poc', tableVariant: tableLayout.roulette_variant },
       }));
       state.round = created.round;
       state.roundId = created.round.roundId;
-      const committed = await remember('commit', apiClient.commitRound(state.roundId, { serverSeed: state.serverSeed }));
+      const committed = await rememberStep('commit', 'Recording pre-bet commitment', 'The API commits hidden server material before chip placement is enabled.', apiClient.commitRound(state.roundId, { serverSeed: state.serverSeed }));
       state.round = committed.round;
       state.stage = 'ready';
+      setOperation('Chips open', 'Commitment is recorded. Table clicks are now local chip placement until Spin Wheel submits the ledger.', 'pass');
       setStatus('Committed round ready for chips', true);
     } catch (error) {
       state.stage = 'boot';
       rememberError('resetError', error);
+      setOperation('Round setup failed', error.message, 'fail');
       setStatus(error.message, false);
     } finally {
       state.busy = false;
@@ -108,11 +128,12 @@ import { createToccataApiClient } from 'kaspa-toccata-api';
     if (state.busy || !state.roundId || !canPlaceChips()) return;
     state.busy = true;
     state.stage = 'spinning';
+    setOperation('Spin started', 'Submitting the visible chip ledger, then closing the round and waiting for live TN10 entropy. The browser will not choose the result.', 'busy');
     setStatus('Submitting chip ledger and closing round…', null);
     renderAll();
 
     try {
-      const ledgerPayload = await remember('betLedger', apiClient.updateBetLedger(state.roundId, {
+      const ledgerPayload = await rememberStep('betLedger', 'Submitting chip ledger', 'The selected chips are sent to the API as the round ledger before close.', apiClient.updateBetLedger(state.roundId, {
         bets: state.selections.map((entry) => ({
           playerId: 'roulette-poc-player',
           selection: `${entry.betType}:${entry.label}`,
@@ -121,7 +142,7 @@ import { createToccataApiClient } from 'kaspa-toccata-api';
       }));
       state.round = ledgerPayload.round;
 
-      const closed = await remember('close', apiClient.closeRound(state.roundId, {
+      const closed = await rememberStep('close', 'Closing round and fixing entropy target', 'Close locks the ledger and chooses a future TN10 blue-score before the entropy block hash is known. This live API step may take a moment.', apiClient.closeRound(state.roundId, {
         clientSeed: state.clientSeed,
         entropyMode: 'live_tn10_future',
       }));
@@ -129,20 +150,20 @@ import { createToccataApiClient } from 'kaspa-toccata-api';
       state.stage = 'closed';
       renderAll();
 
-      const entropy = await remember('entropy', apiClient.getEntropy(state.roundId));
+      const entropy = await rememberStep('entropy', 'Waiting for live TN10 entropy', 'GET /entropy waits for the target future blue-score to have live block evidence. Slow waits here are expected; no local entropy substitute is used.', apiClient.getEntropy(state.roundId));
       state.entropy = entropy.entropy;
       if (entropy.round) state.round = entropy.round;
       state.stage = 'entropy';
       renderAll();
 
-      const revealed = await remember('reveal', apiClient.revealRound(state.roundId, { serverSeed: state.serverSeed }));
+      const revealed = await rememberStep('reveal', 'Revealing API-derived result', 'The API reveals the server seed and derives the displayed roulette result from the committed inputs and live entropy.', apiClient.revealRound(state.roundId, { serverSeed: state.serverSeed }));
       state.round = revealed.round;
       state.stage = 'revealed';
       renderAll();
 
-      const proofPayload = await remember('proof', apiClient.getProof(state.roundId));
+      const proofPayload = await rememberStep('proof', 'Fetching proof bundle', 'Fetching the full proof data behind the visible status strip and flowchart.', apiClient.getProof(state.roundId));
       state.proof = proofPayload.proof;
-      const verification = await remember('verification', apiClient.verifyProof(state.proof));
+      const verification = await rememberStep('verification', 'Verifying proof replay', 'The API replays commitment, ledger, entropy, reveal, and result derivation for this claim level.', apiClient.verifyProof(state.proof));
       state.verification = verification;
       state.stage = 'verified';
       setStatus('Proof verified by API', true);
@@ -152,6 +173,24 @@ import { createToccataApiClient } from 'kaspa-toccata-api';
     } finally {
       state.busy = false;
       renderAll();
+    }
+  }
+
+  async function rememberStep(key, label, detail, promise) {
+    const startedAt = performance.now();
+    setOperation(label, detail, 'busy');
+    setStatus(label, null);
+    renderAll();
+    try {
+      const payload = await promise;
+      const seconds = ((performance.now() - startedAt) / 1000).toFixed(1);
+      state.apiLog[`${key}Timing`] = { seconds: Number(seconds), label };
+      setOperation(label, `${detail} Completed in ${seconds}s.`, 'busy');
+      return remember(key, Promise.resolve(payload));
+    } catch (error) {
+      const seconds = ((performance.now() - startedAt) / 1000).toFixed(1);
+      setOperation(`${label} failed`, `${error.message} after ${seconds}s.`, 'fail');
+      throw error;
     }
   }
 
@@ -190,6 +229,24 @@ import { createToccataApiClient } from 'kaspa-toccata-api';
       anchor,
     });
     if (state.stage === 'ready') state.stage = 'chips';
+    setOperation('Chip placed locally', `${tableRenderer.visibleZoneLabel(zone)} · ${amount} units. Chips stay local until Spin Wheel submits the ledger to the API.`, 'idle');
+    renderAll();
+  }
+
+  function removeLastSelection() {
+    if (!canPlaceChips() || state.selections.length === 0) return;
+    const removed = state.selections.pop();
+    if (state.selections.length === 0) state.stage = 'ready';
+    setOperation('Last chip removed', `${removed.label} was removed before ledger submission.`, 'idle');
+    renderAll();
+  }
+
+  function clearSelections() {
+    if (!canPlaceChips() || state.selections.length === 0) return;
+    const count = state.selections.length;
+    state.selections = [];
+    state.stage = 'ready';
+    setOperation('Chips cleared', `${count} chip selection${count === 1 ? '' : 's'} removed before ledger submission.`, 'idle');
     renderAll();
   }
 
@@ -206,11 +263,18 @@ import { createToccataApiClient } from 'kaspa-toccata-api';
     renderTable();
     renderSelections();
     renderResult();
+    renderOperationStatus();
     renderCompactStatus();
     renderFlowchart();
-    el.spinButton.disabled = state.busy || !state.roundId || !['ready', 'chips'].includes(state.stage);
+    el.spinButton.disabled = state.busy || !state.roundId || !['chips'].includes(state.stage) || state.selections.length === 0;
     el.resetButton.disabled = state.busy;
     el.stake.disabled = !canPlaceChips();
+    el.chipPresets.forEach((button) => {
+      button.disabled = !canPlaceChips();
+      button.classList.toggle('selected', button.dataset.chipAmount === String(el.stake.value));
+    });
+    el.undoChipButton.disabled = !canPlaceChips() || state.selections.length === 0;
+    el.clearChipsButton.disabled = !canPlaceChips() || state.selections.length === 0;
   }
 
   function renderHeader() {
@@ -273,6 +337,19 @@ import { createToccataApiClient } from 'kaspa-toccata-api';
       : 'Result returned by API reveal.';
   }
 
+  function renderOperationStatus() {
+    if (!el.operationStatus) return;
+    const operation = state.operation || {};
+    const tone = operation.tone || 'idle';
+    el.operationStatus.innerHTML = `
+      <div class="operation-card ${escapeHtml(tone)}">
+        <span class="label">Current wait</span>
+        <strong>${escapeHtml(operation.label || 'Ready')}</strong>
+        <p>${escapeHtml(operation.detail || 'Live API status will appear here while the round is running.')}</p>
+      </div>
+    `;
+  }
+
   function renderCompactStatus() {
     const spec = hydrateFlowSpec();
     if (!el.liveProofStatusRoot) return;
@@ -282,13 +359,6 @@ import { createToccataApiClient } from 'kaspa-toccata-api';
     }
     el.liveProofStatusRoot.innerHTML = `
       <div class="compact-status-card">
-        <div class="compact-status-heading">
-          <div>
-            <span class="label">${escapeHtml(spec.compact.title || 'Live proof status')}</span>
-            <p>${escapeHtml(spec.compact.subtitle || 'Compact proof state visible while playing.')}</p>
-          </div>
-          <strong>${escapeHtml(labelForStage(state.stage))}</strong>
-        </div>
         <div class="compact-status-grid" style="--compact-columns: ${spec.compact.maxSlots || 1}">
           ${spec.compact.rows.map(renderCompactRow).join('')}
         </div>
@@ -300,19 +370,20 @@ import { createToccataApiClient } from 'kaspa-toccata-api';
     return `
       <div class="compact-row-label">${escapeHtml(row.label)}</div>
       <div class="compact-row-track">
-        ${row.slots.map((node) => renderCompactSlot(node)).join('')}
+        ${row.slots.map((node, index) => renderCompactSlot(node, index, row.slots.length)).join('')}
       </div>
     `;
   }
 
-  function renderCompactSlot(node) {
+  function renderCompactSlot(node, index = 0, total = 1) {
     if (!node) {
       return '<span class="compact-step compact-gap" aria-label="No matching proof step">—</span>';
     }
     const help = node.compactHelp || node.summary || node.title;
     const links = renderCompactHelpLinks(node.compactLinks || []);
+    const edgeClass = index <= 1 ? 'tooltip-left' : index >= total - 2 ? 'tooltip-right' : 'tooltip-center';
     return `
-      <span class="compact-step ${escapeHtml(node.status)}" tabindex="0" title="${escapeHtml(help)}" aria-label="${escapeHtml(`${node.title}: ${help}`)}" data-node-id="${escapeHtml(node.id)}">
+      <span class="compact-step ${escapeHtml(node.status)} ${edgeClass}" tabindex="0" title="${escapeHtml(help)}" aria-label="${escapeHtml(`${node.title}: ${help}`)}" data-node-id="${escapeHtml(node.id)}">
         <span class="compact-step-label">${escapeHtml(node.compactLabel || node.badge || node.title)}</span>
         <span class="compact-info" aria-hidden="true">i</span>
         <span class="compact-help" role="tooltip">
@@ -530,6 +601,10 @@ import { createToccataApiClient } from 'kaspa-toccata-api';
   function shortText(value) {
     const text = String(value || '');
     return text.length > 22 ? `${text.slice(0, 12)}…${text.slice(-8)}` : text;
+  }
+
+  function setOperation(label, detail, tone = 'idle') {
+    state.operation = { label, detail, tone };
   }
 
   function setStatus(text, passed) {

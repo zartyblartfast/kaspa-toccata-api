@@ -114,7 +114,7 @@ spikes/rust-toccata-capability/README.md
 - Button-by-button demo behavior and roulette-stage/proof-of-fairness mapping are documented in `docs/BASIC_WEB_DEMO_BUTTONS.md`. Use this when deciding how the roulette PoC presents commitment, close/entropy target, live entropy, reveal, transaction evidence, and proof verification.
 - The page remains generic/app-agnostic and calls the same `/v1/*` HTTP API surface wrapped by the `kaspa-toccata-api` npm client; it does not load static proof/result fixtures or perform browser-side proof/result substitution.
 - Corrected roulette PoC UI: the rejected API-demo-like scaffold has been replaced under `apps/roulette-poc/` with the two-section target UI. `Roulette Game` is table-first and uses the older `/root/kaspa-fair-foundation/examples/roulette-poc/ui/` SVG table/chip-placement lineage. `Proof of Fairness` is an env095-style flowchart backed by `apps/roulette-poc/flowchart-spec.json`: the full vertical flowchart is collapsible below the game, while a compact two-row live proof status strip remains visible near the roulette table during play. The compact rows are `Roulette: Ready/Gate/Chips/Spin/Closed/Waiting/Result/Verified` and `Toccata: Create/Commit/—/Ledger/Close/Entropy/Reveal/Verify`. Compact tiles have `i` hover/focus help text and allow-listed project-doc links for concepts such as entropy/future blue-score. The app imports `createToccataApiClient` from `kaspa-toccata-api` through the browser import map to `/src/client.mjs`; no app-level raw `/v1/*` fetch, static round/proof/result JSON, mock/offline paths, or browser-side proof/result authority were added.
-- Latest roulette verification: `scripts/roulette-poc-smoke.sh` passed all checks, including `ROULETTE_POC_NO_STATIC_OR_OFFLINE_PATTERNS=PASS`, `ROULETTE_POC_NO_MOCK_PATTERNS=PASS`, `ROULETTE_POC_NPM_API_IMPORT_READY=PASS`, `ROULETTE_POC_FLOWCHART_SPEC_ALIGNED=PASS`, `ROULETTE_POC_ESM_CLIENT_SERVED=PASS`, `ROULETTE_POC_TX_FAIL_CLOSED=PASS`, and `ROULETTE_POC_NO_STATIC_PROOF_FIXTURES=PASS`. Browser verification on `PORT=8797` showed compact labels including `Entropy` instead of `TN10`, Waiting help explaining `GET /entropy` and future blue-score evidence, Entropy help explaining external entropy, doc links for the entropy step/future-entropy design, the full flowchart collapsed below, and Spin Wheel completing through the API to `stage=verified`, `claimLevel=tn10_future_entropy`, visible result, and proof text `verified: true`.
+- Latest roulette UX pass: added quick chip amount buttons, undo/clear chip controls, and Spin disabled until at least one chip is placed. Compact proof tooltips now get edge-aware alignment classes, and smaller-screen CSS wraps compact status rows/controls while keeping the roulette table horizontally scrollable. Browser verification on `PORT=8798` confirmed chip presets, chip placement, undo/clear, zero-chip Spin gating, and a full Spin flow through the npm client/API to `stage=verified`, `claimLevel=tn10_future_entropy`, visible result `20 black`. A duplicate extra status card was removed so the top of the game relies on the existing service pill plus compact proof strip.
 - A live-write-enabled server was killed before handoff; do not leave funded-key API processes running after testing.
 
 ## Current blockers / unknowns
@@ -126,9 +126,9 @@ spikes/rust-toccata-capability/README.md
 
 ## Next 3 actions
 
-1. Review the pushed roulette PoC commit and run the viewing server locally if needed.
-2. Do a browser UX pass for smaller screens, tooltip placement/clipping, and chip-selection ergonomics.
-3. Improve status messaging around slow live API/TN10 waits (`network/status`, `close`, `entropy`) without adding mock/offline fallbacks.
+1. Review the latest roulette PoC UX pass diff.
+2. Do a deeper small-screen manual pass from a real narrow/mobile viewport if needed.
+3. If explicitly authorized, run a live-write-gated browser/API pass; otherwise keep write endpoints fail-closed by default.
 
 ## Do not regress
 

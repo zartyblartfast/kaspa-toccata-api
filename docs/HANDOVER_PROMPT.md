@@ -1,6 +1,6 @@
 # Handover Prompt
 
-Generated: 2026-07-01T21:05:56Z
+Generated: 2026-07-01T21:23:32Z
 
 Continue in `/root/kaspa-toccata-api`.
 
@@ -230,9 +230,17 @@ full Proof of Fairness flowchart is collapsed below
 
 A weak network exposed noticeable waits around reset/spin because live TN10/API calls can be slow. This is expected for real TN10 paths and should be surfaced with better status messages rather than solved with mock/offline fallbacks.
 
+Latest UX pass after commit `10fbbff` added:
+
+- quick chip buttons `1`, `5`, `25`, `100`;
+- `Undo` and `Clear` chip controls before ledger submission;
+- `Spin Wheel` disabled until a chip is placed;
+- compact tooltip edge alignment and narrower-screen CSS rules for compact status, controls, and the horizontally scrollable roulette table.
+
+Browser verification on `PORT=8798` confirmed chip presets, chip placement, undo/clear, Spin disabled with zero chips, Spin enabled after a chip, and a full Spin flow through npm client/API to `stage=verified`, `claimLevel=tn10_future_entropy`, visible result `20 black`. The duplicate extra status card was then removed; the game top now uses the existing service pill plus compact proof strip.
+
 Next reasonable work:
 
-1. Review the pushed diff from this handoff.
-2. Do a browser UX pass on smaller screens and tooltip placement/clipping.
-3. Improve status messaging around slow `network/status`, `close`, and `entropy` API waits.
-4. If explicitly authorized, run a live-write-gated browser/API pass; otherwise keep write endpoints fail-closed.
+1. Review the latest UX pass diff.
+2. Do a deeper small-screen manual pass from a real narrow/mobile viewport if needed.
+3. If explicitly authorized, run a live-write-gated browser/API pass; otherwise keep write endpoints fail-closed.

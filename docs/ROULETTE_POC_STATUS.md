@@ -215,12 +215,25 @@ proof flow includes: verified: true
 
 The active local viewing server is on `127.0.0.1:8797`. Use `ss -ltnp 'sport = :PORT'` to confirm the intended server before browser testing.
 
+## Latest UX pass
+
+A follow-up browser UX pass added:
+
+- quick chip amount buttons for `1`, `5`, `25`, and `100` units;
+- `Undo` and `Clear` chip controls before the ledger is submitted;
+- `Spin Wheel` disabled until at least one chip is placed;
+- compact-tooltip edge alignment classes plus narrower/mobile media rules to reduce tooltip clipping;
+- smaller-screen CSS refinements for compact status rows, controls, and the horizontally scrollable roulette table.
+
+Browser verification on `PORT=8798` confirmed: chip amount presets select the stake, table clicks add chips locally, undo/clear remove chips before ledger submission, Spin is disabled with zero chips and enabled after a chip is placed, and Spin completed through the npm client/API to `stage=verified`, `claimLevel=tn10_future_entropy`, with visible result `20 black` in that run. The duplicate extra status card was then removed; the game top now uses the existing service pill plus compact proof strip.
+
+No raw app-level `/v1/*` fetch, mock/local substitute paths, synthetic transaction success paths, static proof/result JSON, or browser-side result/proof authority were added.
+
 ## Next work
 
-1. Review the pushed roulette PoC commit from this handoff.
-2. Do a browser UX pass for smaller screens, tooltip placement/clipping, and chip-selection ergonomics.
-3. Improve player-facing status messaging around slow live API/TN10 waits (`network/status`, `close`, `entropy`) without adding mock/offline fallbacks.
-4. If explicitly authorized, run a live-write-gated browser/API pass; otherwise keep write endpoints fail-closed by default.
+1. Review the latest UX pass diff.
+2. Do a deeper small-screen manual pass from a real narrow/mobile viewport if needed.
+3. If explicitly authorized, run a live-write-gated browser/API pass; otherwise keep write endpoints fail-closed by default.
 
 Latest broader verification also passed:
 

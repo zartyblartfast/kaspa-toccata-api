@@ -27,7 +27,6 @@
     <section class="section-card game-section" aria-labelledby="roulette-game-title">
       <div class="section-heading">
         <div>
-          <p class="section-kicker">1</p>
           <h2 id="roulette-game-title">Roulette Game</h2>
           <p class="note">Click the table to place chips. Reset creates a new API round and commits hidden result material before chips are accepted.</p>
         </div>
@@ -39,6 +38,7 @@
       </div>
 
       <div id="liveProofStatusRoot" class="live-proof-status" aria-live="polite"></div>
+      <div id="operationStatus" class="operation-status" aria-live="polite"></div>
 
       <div class="game-grid">
         <div class="roulette-shell">
@@ -55,6 +55,12 @@
             <span>Chip amount</span>
             <input id="stake" type="number" min="1" step="1" value="5">
           </label>
+          <div class="chip-presets" aria-label="Quick chip amounts">
+            <button type="button" class="chip-preset" data-chip-amount="1">1</button>
+            <button type="button" class="chip-preset" data-chip-amount="5">5</button>
+            <button type="button" class="chip-preset" data-chip-amount="25">25</button>
+            <button type="button" class="chip-preset" data-chip-amount="100">100</button>
+          </div>
 
           <div class="button-row primary-controls">
             <button id="spinButton" type="button">Spin Wheel</button>
@@ -64,6 +70,10 @@
           <div class="ledger-card">
             <div class="ledger-heading">
               <span class="label">Selected chips</span>
+              <div class="ledger-actions">
+                <button id="undoChipButton" type="button" class="small-button">Undo</button>
+                <button id="clearChipsButton" type="button" class="small-button">Clear</button>
+              </div>
             </div>
             <ul id="selectionList" class="selection-list"></ul>
           </div>
@@ -74,7 +84,6 @@
     <section class="section-card proof-section" aria-labelledby="proof-title">
       <div class="section-heading">
         <div>
-          <p class="section-kicker">2</p>
           <h2 id="proof-title">Proof of Fairness</h2>
           <p class="note">Follow the two-column flow. Left: the roulette round. Right: the Kaspa Toccata proof evidence returned by the API.</p>
         </div>
