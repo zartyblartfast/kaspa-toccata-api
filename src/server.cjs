@@ -130,14 +130,22 @@ function sendBasicApiTestPage(res) {
 }
 
 const STATIC_MODULE_FILES = new Map([
-  ['/src/client.mjs', 'src/client.mjs']
+  ['/src/client.mjs', 'src/client.mjs'],
+  ['/apps/roulette-poc/', 'apps/roulette-poc/index.html'],
+  ['/apps/roulette-poc/index.html', 'apps/roulette-poc/index.html'],
+  ['/apps/roulette-poc/app.js', 'apps/roulette-poc/app.js'],
+  ['/apps/roulette-poc/styles.css', 'apps/roulette-poc/styles.css'],
+  ['/apps/roulette-poc/flowchart-spec.json', 'apps/roulette-poc/flowchart-spec.json'],
+  ['/apps/roulette-poc/roulette-table-layout.js', 'apps/roulette-poc/roulette-table-layout.js'],
+  ['/apps/roulette-poc/roulette-table-renderer.js', 'apps/roulette-poc/roulette-table-renderer.js']
 ]);
 
 const STATIC_CONTENT_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
-  '.mjs': 'text/javascript; charset=utf-8'
+  '.mjs': 'text/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8'
 };
 
 function sendStaticModuleFile(res, relativePath) {
