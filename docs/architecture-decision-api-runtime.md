@@ -135,11 +135,11 @@ NPX_SERVE_HEALTHCHECK
 | source-level Toccata WASM primitives | PASS | n/a | n/a |
 | Toccata WASM Node build/import | PASS | n/a | n/a |
 | Node live TN10 wRPC read | PASS | n/a | n/a |
-| direct Toccata primitive access | Covenant primitives PASS, tx/write runtime UNKNOWN | Likely High | Likely High |
-| TN10 wRPC from runtime | PASS for Node read-only | Likely | Likely |
+| direct Toccata primitive access | Covenant primitives PASS; API live commit write/broadcast PASS; no offline/mock write path retained | Likely High | Likely High |
+| TN10 wRPC from runtime | PASS for Node live status | Likely | Likely |
 | covenant/KIP-20 support | Covenant primitives PASS, full workflow UNKNOWN | Likely | Likely |
 | curl/API smoke tests | High | High | High |
-| package publish complexity | Medium | Medium | High |
+| package publish complexity | Own wrapper tarball PASS; registry publish not tested | Medium | High |
 | low-level correctness confidence | Promising, write path unknown | High if official branch works | High if official branch works |
 | fastest Milestone 1 | Medium | Medium | Low/Medium |
 | long-term app adoption | High | High | High |
@@ -177,15 +177,15 @@ NPM_TN10_WRPC_DISCONNECT=PASS
 NPM_TN10_WRPC_VERDICT=VALIDATED
 ```
 
-This makes Option A strongly plausible for Milestone 1 and read-only Milestone 3. It does **not** yet prove Option A is sufficient for the full API, because transaction build/sign/broadcast and package wrapping/publishing remain untested.
+This makes Option A strongly plausible for Milestone 1 and live TN10 status work. A follow-up wrapper-package spike also proved that the built official WASM package can be vendored into a temporary `@kaspa-toccata/core` tarball, installed by a clean consumer, imported through our package boundary, and used to construct covenant primitives. It does **not** yet prove Option A is sufficient for the full API, because transaction build/sign/broadcast and real npm registry publishing remain untested.
 
 ## Current recommendation
 
-Do not choose yet.
+Proceed with Milestone 1 API shell using the TypeScript/npm-first path for live TN10 status.
 
-Run both capability spikes first. If Option A proves the necessary Toccata/WASM features cleanly, prefer TypeScript/npm-first. If not, choose Option B for implementation and keep npm as the developer-facing client/wrapper layer.
+Reason: source/build/import/covenant-construction/live-TN10-read checks passed, and the own-package wrapper tarball/clean-consumer check passed. Keep runtime choice provisional for write/covenant-enforced milestones until JS/TS transaction build/sign/broadcast is tested.
 
-Option C is likely a distribution strategy after Option B, not the first implementation strategy.
+Option C is likely a distribution strategy after a Rust-backed decision, not the first implementation strategy.
 
 ## Required spike output
 
@@ -198,6 +198,7 @@ NPM_TOCCATA_WASM_BUILD=PASS|FAIL|UNKNOWN
 NPM_COVENANT_BINDING=PASS|FAIL|UNKNOWN
 NPM_GENESIS_COVENANT_GROUP=PASS|FAIL|UNKNOWN
 NPM_TN10_WRPC_CONNECT=PASS|FAIL|UNKNOWN
+NPM_WRAPPER_PACKAGE_VERDICT=PASS|FAIL|UNKNOWN
 RUST_TOCCATA_TX_VERSION=PASS|FAIL|UNKNOWN
 RUST_COVENANT_OUTPUT=PASS|FAIL|UNKNOWN
 RUST_TN10_WRPC_CONNECT=PASS|FAIL|UNKNOWN
@@ -207,3 +208,52 @@ RECOMMENDED_RUNTIME=typescript|rust|hybrid|undecided
 ## Anti-decision
 
 Do not choose a runtime because the old app used it. Old work is evidence, not authority.
+
+## Wrapper package spike result
+
+The npm wrapper/package-boundary spike passed:
+
+```text
+NPM_WRAPPER_PACKAGE_PREREQ_NPM=PASS
+NPM_WRAPPER_OFFICIAL_PACKAGE_JSON=PASS
+NPM_WRAPPER_OFFICIAL_PACKAGE_JS=PASS
+NPM_WRAPPER_OFFICIAL_PACKAGE_WASM=PASS
+NPM_WRAPPER_OFFICIAL_PACKAGE_TYPES=PASS
+NPM_WRAPPER_PACKAGE_DIRECT_IMPORT=PASS
+NPM_WRAPPER_PACKAGE_PACK=PASS
+NPM_WRAPPER_PACKAGE_TARBALL_CONTAINS_WASM=PASS
+NPM_WRAPPER_PACKAGE_CONSUMER_INSTALL=PASS
+NPM_WRAPPER_PACKAGE_CONSUMER_IMPORT=PASS
+NPM_WRAPPER_PACKAGE_CONSUMER_COVENANT_CONSTRUCT=PASS
+NPM_WRAPPER_PACKAGE_VERDICT=PASS # VALIDATED
+```
+
+Important limitation: the spike copies generated official WASM artifacts only into `/tmp` to test package consumption. It does not commit generated WASM to this repository and does not publish to npm.
+
+## Historical JS/TS transaction capability note
+
+The old offline/synthetic transaction spike code has been removed from the repo. Current implementation direction is live TN10 only. The relevant current evidence is the API live commit endpoint, validated with txid `5576e597aa80197de50dd6dfe3f9c351ba5c8c58b5e7d9be33bc82b5d86258e8`.
+
+Interpretation: TypeScript/npm-first remains viable for Milestone 1, live TN10 status, live TN10 commit write work and guarded live TN10 broadcast. Production TN10 reveal write endpoint still require explicit safety design before being enabled.
+
+## Guarded live TN10 broadcast spike status
+
+A guarded live TN10 broadcast spike script now exists at `spikes/live-tn10-broadcast-capability/check-live-tn10-broadcast.js`. Its fail-closed path is verified:
+
+```text
+LIVE_TN10_WASM_IMPORT=PASS
+LIVE_TN10_EXPORT_PrivateKey=PASS
+LIVE_TN10_EXPORT_createTransactions=PASS
+LIVE_TN10_EXPORT_RpcClient=PASS
+LIVE_TN10_EXPORT_Resolver=PASS
+LIVE_TN10_EXPORT_Encoding=PASS
+LIVE_TN10_NETWORK_GUARD=PASS # testnet-10
+LIVE_TN10_WRITE_ENABLE_GUARD=PASS # TOCCATA_ENABLE_TN10_WRITES is not 1; broadcast disabled
+LIVE_TN10_BROADCAST_ACK_GUARD=PASS # ack phrase missing/mismatched; broadcast disabled
+LIVE_TN10_PRIVATE_KEY_GUARD=PASS # TOCCATA_TN10_PRIVATE_KEY missing or not 64 hex chars; broadcast disabled
+LIVE_TN10_AMOUNT_GUARD=PASS # amountSompi=10000000
+LIVE_TN10_BROADCAST_EXECUTED=PASS # NO; fail-closed guards prevented live broadcast
+LIVE_TN10_BROADCAST_VERDICT=GUARDED # set all required env vars to execute live TN10 broadcast
+```
+
+Interpretation: the live-broadcast path is now safely scaffolded, but actual broadcast acceptance remains UNKNOWN until a funded disposable `testnet-10` key is supplied through the required environment gates.

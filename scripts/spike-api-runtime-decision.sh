@@ -13,6 +13,9 @@ unknown() { printf '%s=UNKNOWN
 
 [ -f docs/architecture-decision-api-runtime.md ] && pass ARCH_DECISION_DOC || fail ARCH_DECISION_DOC
 [ -d spikes/npm-toccata-wasm-capability ] && pass NPM_SPIKE_DIR || fail NPM_SPIKE_DIR
+[ -d spikes/npm-wrapper-package-capability ] && pass NPM_WRAPPER_SPIKE_DIR || fail NPM_WRAPPER_SPIKE_DIR
+[ -d spikes/js-ts-transaction-capability ] && pass JS_TX_SPIKE_DIR || fail JS_TX_SPIKE_DIR
+[ -d spikes/live-tn10-broadcast-capability ] && pass LIVE_TN10_BROADCAST_SPIKE_DIR || fail LIVE_TN10_BROADCAST_SPIKE_DIR
 [ -d spikes/rust-toccata-capability ] && pass RUST_SPIKE_DIR || fail RUST_SPIKE_DIR
 
 if find .   -path './.git' -prune -o   -path './node_modules' -prune -o   -type f \(     -name 'sample-round.json' -o     -name 'toccata-fairness-proof.json' -o     -name 'proof.json' -o     -name 'round.json'   \) -print | grep -q .; then
@@ -47,6 +50,24 @@ if [ "${RUN_TN10_WRPC:-0}" = "1" ]; then
   KASPA_WASM_PKG=/tmp/kaspa-toccata-api-spikes/rusty-kaspa-toccata/wasm/nodejs/kaspa node spikes/npm-toccata-wasm-capability/check-tn10-wrpc.js || true
 else
   unknown NPM_TN10_WRPC_CONNECT "set RUN_TN10_WRPC=1 to run live network check"
+fi
+
+if [ "${RUN_NPM_WRAPPER_PACKAGE:-0}" = "1" ]; then
+  spikes/npm-wrapper-package-capability/check-wrapper-package.sh || true
+else
+  unknown NPM_WRAPPER_PACKAGE_VERDICT "set RUN_NPM_WRAPPER_PACKAGE=1 to run wrapper package check"
+fi
+
+if [ "${RUN_JS_TX_SPIKE:-0}" = "1" ]; then
+  node spikes/js-ts-transaction-capability/check-js-ts-transaction.js || true
+else
+  unknown JS_TX_SPIKE_VERDICT "set RUN_JS_TX_SPIKE=1 to run JS/TS transaction build/sign check"
+fi
+
+if [ "${RUN_LIVE_TN10_BROADCAST_SPIKE:-0}" = "1" ]; then
+  node spikes/live-tn10-broadcast-capability/check-live-tn10-broadcast.js || true
+else
+  unknown LIVE_TN10_BROADCAST_VERDICT "set RUN_LIVE_TN10_BROADCAST_SPIKE=1 to run guarded live broadcast check"
 fi
 
 # Rust capability checks remain pending.

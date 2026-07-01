@@ -1,0 +1,69 @@
+{
+  "name": "kaspa-toccata-api",
+  "version": "0.1.1",
+  "description": "Developer-facing client for a live TN10-only Kaspa/Toccata fairness API",
+  "type": "commonjs",
+  "license": "MIT",
+  "author": "Kaspa Toccata API contributors",
+  "homepage": "https://github.com/zartyblartfast/kaspa-toccata-api#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zartyblartfast/kaspa-toccata-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zartyblartfast/kaspa-toccata-api/issues"
+  },
+  "keywords": [
+    "kaspa",
+    "tn10",
+    "toccata",
+    "fairness",
+    "proof",
+    "api-client"
+  ],
+  "scripts": {
+    "start": "node src/server.cjs",
+    "api:smoke": "scripts/api-smoke.sh",
+    "api:live-contract-smoke": "scripts/api-live-contract-smoke.sh",
+    "api:basic-web-smoke": "scripts/basic-web-api-test-smoke.sh",
+    "spike:runtime": "scripts/spike-api-runtime-decision.sh",
+    "spike:npm-wrapper": "spikes/npm-wrapper-package-capability/check-wrapper-package.sh",
+    "spike:live-tn10-broadcast": "node spikes/live-tn10-broadcast-capability/check-live-tn10-broadcast.js",
+    "live-only:smoke": "scripts/live-only-policy-smoke.sh",
+    "client:smoke": "scripts/client-lifecycle-smoke.sh",
+    "client:package-smoke": "scripts/client-package-boundary-smoke.sh",
+    "npm:readiness-smoke": "scripts/npm-client-readiness-smoke.sh",
+    "future:entropy-smoke": "scripts/future-entropy-round-smoke.sh",
+    "proof:tx-evidence-smoke": "scripts/proof-transaction-evidence-smoke.sh",
+    "persistence:smoke": "scripts/persistence-smoke.sh",
+    "tn10:write-smoke": "scripts/tn10-write-round-smoke.sh",
+    "tn10:live-commit-smoke": "scripts/tn10-live-commit-smoke.sh",
+    "tn10:live-close-smoke": "scripts/tn10-live-close-smoke.sh",
+    "tn10:live-reveal-smoke": "scripts/tn10-live-reveal-smoke.sh"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "main": "./src/client.cjs",
+  "types": "./src/client.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/client.d.ts",
+      "require": "./src/client.cjs",
+      "default": "./src/client.cjs"
+    },
+    "./client": {
+      "types": "./src/client.d.ts",
+      "require": "./src/client.cjs",
+      "default": "./src/client.cjs"
+    }
+  },
+  "files": [
+    "src/client.cjs",
+    "src/client.d.ts",
+    "README.md",
+    "LICENSE",
+    "docs/API_STATUS.md",
+    "docs/VERIFY_TN10_TRANSACTIONS.md"
+  ]
+}

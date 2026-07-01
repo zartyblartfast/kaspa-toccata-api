@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * Verify the built official Toccata WASM Node package can connect to live TN10
- * wRPC and retrieve read-only node/blockDAG evidence.
+ * wRPC and retrieve live node/blockDAG status evidence.
  */
 const path = process.env.KASPA_WASM_PKG || "/tmp/kaspa-toccata-api-spikes/rusty-kaspa-toccata/wasm/nodejs/kaspa";
 const NETWORK_ID = process.env.KASPA_NETWORK_ID || "testnet-10";

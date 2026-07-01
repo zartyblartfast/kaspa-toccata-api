@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kaspa Toccata API Basic Live Test</title>
+  <style>
+    :root { color-scheme: dark; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { margin: 0; background: #0b1020; color: #eef3ff; }
+    main { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    h2 { margin: 0 0 12px; font-size: 18px; }
+    p { color: #aeb8d0; line-height: 1.45; }
+    .notice { border: 1px solid #2f6fed; background: #101b36; border-radius: 12px; padding: 14px 16px; margin: 16px 0 22px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 14px; }
+    section { border: 1px solid #26324f; background: #11182a; border-radius: 14px; padding: 16px; box-shadow: 0 8px 28px rgba(0,0,0,.22); }
+    label { display: block; margin: 10px 0 5px; color: #cbd6ef; font-size: 13px; font-weight: 650; }
+    input, textarea { width: 100%; box-sizing: border-box; border-radius: 9px; border: 1px solid #3a4665; background: #080d19; color: #f3f7ff; padding: 9px 10px; font: 13px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    textarea { min-height: 92px; resize: vertical; }
+    button { cursor: pointer; border: 0; border-radius: 10px; padding: 10px 12px; margin: 8px 8px 0 0; font-weight: 750; color: #07101f; background: #72e6a6; }
+    button.secondary { background: #9fc3ff; }
+    button.tx { background: #ffd166; }
+    button.warn { background: #ff9f9f; }
+    button:disabled { cursor: not-allowed; opacity: .55; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .status { min-height: 18px; color: #8ee6b2; font-size: 13px; margin-top: 8px; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .pill { display: inline-block; border-radius: 999px; padding: 3px 8px; background: #1d2a46; color: #bdd0ff; font-size: 12px; margin: 2px 5px 2px 0; }
+    #roundSummary { white-space: pre-wrap; background: #080d19; border: 1px solid #26324f; border-radius: 12px; padding: 12px; min-height: 88px; overflow: auto; }
+    #output { white-space: pre-wrap; background: #050914; color: #d8e4ff; border: 1px solid #26324f; border-radius: 12px; padding: 14px; min-height: 320px; max-height: 760px; overflow: auto; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Kaspa Toccata API Basic Live Test</h1>
+  <p>Minimal web page for manually checking the generic app-agnostic Toccata lifecycle against this API service.</p>
+  <div class="notice">
+    <strong>Live TN10 only.</strong> The transaction buttons call real guarded TN10 write endpoints. They succeed only when this local API was started with explicit testnet write gates and a funded TN10 key. Otherwise they should fail closed and show the API error.
+  </div>
+
+  <section>
+    <h2>Current round</h2>
+    <label>API base URL</label>
+    <input id="apiBaseUrl" placeholder="same origin, e.g. http://127.0.0.1:8787">
+    <p style="margin:8px 0 0;">Leave blank only when this page is served by <code>node src/server.cjs</code>. If opened from a static file server, enter the API server URL here.</p>
+    <div><span class="pill">roundId</span><code id="roundIdLabel">none</code></div>
+    <div id="roundSummary">No round yet. Click “Create round”.</div>
+  </section>
+
+  <div class="grid">
+    <section>
+      <h2>1. API health and TN10 status</h2>
+      <button class="secondary" data-action="health">Health</button>
+      <button class="secondary" data-action="capabilities">Capabilities</button>
+      <button class="secondary" data-action="network">TN10 network status</button>
+      <div class="status" id="status-health"></div>
+    </section>
+
+    <section>
+      <h2>2. Create generic round</h2>
+      <label>game</label>
+      <input id="game" value="generic-contract">
+      <label>tableId / app context</label>
+      <input id="tableId" value="basic-web-api-test">
+      <button data-action="createRound">Create round</button>
+      <div class="status" id="status-create"></div>
+    </section>
+
+    <section>
+      <h2>3. Commit hidden server seed</h2>
+      <label>serverSeed</label>
+      <input id="serverSeed">
+      <button data-action="commitRound">Commit state</button>
+      <button class="tx" data-action="commitTx">Broadcast commit/tx</button>
+      <div class="status" id="status-commit"></div>
+    </section>
+
+    <section>
+      <h2>4. Bet/input ledger</h2>
+      <label>bets JSON</label>
+      <textarea id="betsJson">[
+  { "playerId": "alice", "selection": "generic-selection", "amount": 1 },
+  { "playerId": "bob", "selection": "generic-selection-2", "amount": 2 }
+]</textarea>
+      <button data-action="updateLedger">Update ledger</button>
+      <div class="status" id="status-ledger"></div>
+    </section>
+
+    <section>
+      <h2>5. Close round and fix future TN10 entropy target</h2>
+      <label>clientSeed</label>
+      <input id="clientSeed">
+      <label>targetOffsetBlueScore</label>
+      <input id="targetOffset" type="number" min="1" value="1">
+      <button data-action="closeRound">Close state</button>
+      <button class="tx" data-action="closeTx">Broadcast close/tx</button>
+      <div class="status" id="status-close"></div>
+    </section>
+
+    <section>
+      <h2>6. Fetch live TN10 entropy</h2>
+      <button class="secondary" data-action="getEntropy">Fetch entropy</button>
+      <div class="status" id="status-entropy"></div>
+    </section>
+
+    <section>
+      <h2>7. Reveal and calculate result</h2>
+      <button data-action="revealRound">Reveal state</button>
+      <button class="tx" data-action="revealTx">Broadcast reveal/tx</button>
+      <div class="status" id="status-reveal"></div>
+    </section>
+
+    <section>
+      <h2>8. Proof, verification, and TN10 tx evidence</h2>
+      <button class="secondary" data-action="getProof">Get proof</button>
+      <button class="secondary" data-action="verifyProof">Verify proof</button>
+      <button class="warn" data-action="clearOutput">Clear output</button>
+      <div class="status" id="status-proof"></div>
+    </section>
+  </div>
+
+  <section style="margin-top:14px;">
+    <h2>Output</h2>
+    <pre id="output">Ready.</pre>
+  </section>
+</main>
+
+<script>
+(() => {
+  let roundId = '';
+  let latestProof = null;
+  const $ = (id) => document.getElementById(id);
+  const output = $('output');
+
+  function seedDefaults() {
+    const stamp = Date.now();
+    $('serverSeed').value = `web-basic-server-${stamp}`;
+    $('clientSeed').value = `web-basic-client-${stamp}`;
+  }
+
+  function setStatus(id, text, isError = false) {
+    const el = $(id);
+    el.textContent = text;
+    el.style.color = isError ? '#ffb0b0' : '#8ee6b2';
+  }
+
+  function print(label, data) {
+    output.textContent = `${label}\n${JSON.stringify(data, null, 2)}\n\n${output.textContent}`;
+  }
+
+  function summarizeRound(round) {
+    if (!round) return;
+    roundId = round.roundId || roundId;
+    $('roundIdLabel').textContent = roundId || 'none';
+    $('roundSummary').textContent = JSON.stringify({
+      roundId: round.roundId,
+      status: round.status,
+      claimLevel: round.claimLevel,
+      commitment: round.commitment,
+      futureEntropyPlan: round.futureEntropyPlan,
+      entropyHash: round.entropy && round.entropy.entropyHash,
+      result: round.result,
+      tn10Writes: round.tn10Writes && {
+        commit: round.tn10Writes.commit && round.tn10Writes.commit.transactionIds,
+        close: round.tn10Writes.close && round.tn10Writes.close.transactionIds,
+        reveal: round.tn10Writes.reveal && round.tn10Writes.reveal.transactionIds
+      }
+    }, null, 2);
+  }
+
+  async function api(path, options = {}) {
+    const baseUrl = $('apiBaseUrl').value.trim().replace(/\/$/, '');
+    const requestUrl = baseUrl ? `${baseUrl}${path}` : path;
+    const response = await fetch(requestUrl, {
+      method: options.method || 'GET',
+      headers: options.body ? { 'content-type': 'application/json' } : undefined,
+      body: options.body ? JSON.stringify(options.body) : undefined
+    });
+    const data = await response.json().catch(() => ({ ok: false, message: response.statusText }));
+    if (!response.ok) {
+      const error = new Error(data.message || data.error || response.statusText);
+      error.status = response.status;
+      error.body = data;
+      throw error;
+    }
+    return data;
+  }
+
+  async function run(statusId, label, fn) {
+    setStatus(statusId, 'Running...');
+    try {
+      const data = await fn();
+      if (data.round) summarizeRound(data.round);
+      if (data.proof) latestProof = data.proof;
+      print(label, data);
+      setStatus(statusId, 'OK');
+    } catch (error) {
+      print(`${label} ERROR`, { status: error.status, message: error.message, body: error.body });
+      setStatus(statusId, `ERROR: ${error.message}`, true);
+    }
+  }
+
+  const actions = {
+    health: () => run('status-health', 'GET /v1/health', () => api('/v1/health')),
+    capabilities: () => run('status-health', 'GET /v1/capabilities', () => api('/v1/capabilities')),
+    network: () => run('status-health', 'GET /v1/network/status', () => api('/v1/network/status')),
+    createRound: () => run('status-create', 'POST /v1/rounds', () => api('/v1/rounds', { method: 'POST', body: { game: $('game').value, tableId: $('tableId').value } })),
+    commitRound: () => run('status-commit', 'POST /commit', () => api(`/v1/rounds/${encodeURIComponent(roundId)}/commit`, { method: 'POST', body: { serverSeed: $('serverSeed').value } })),
+    commitTx: () => run('status-commit', 'POST /commit/tx', () => api(`/v1/rounds/${encodeURIComponent(roundId)}/commit/tx`, { method: 'POST', body: {} })),
+    updateLedger: () => run('status-ledger', 'POST /bets/ledger', () => api(`/v1/rounds/${encodeURIComponent(roundId)}/bets/ledger`, { method: 'POST', body: { bets: JSON.parse($('betsJson').value) } })),
+    closeRound: () => run('status-close', 'POST /close', () => api(`/v1/rounds/${encodeURIComponent(roundId)}/close`, { method: 'POST', body: { clientSeed: $('clientSeed').value, entropyMode: 'live_tn10_future', targetOffsetBlueScore: Number($('targetOffset').value || 1) } })),
+    closeTx: () => run('status-close', 'POST /close/tx', () => api(`/v1/rounds/${encodeURIComponent(roundId)}/close/tx`, { method: 'POST', body: {} })),
+    getEntropy: () => run('status-entropy', 'GET /entropy', () => api(`/v1/rounds/${encodeURIComponent(roundId)}/entropy`)),
+    revealRound: () => run('status-reveal', 'POST /reveal', () => api(`/v1/rounds/${encodeURIComponent(roundId)}/reveal`, { method: 'POST', body: { serverSeed: $('serverSeed').value } })),
+    revealTx: () => run('status-reveal', 'POST /reveal/tx', () => api(`/v1/rounds/${encodeURIComponent(roundId)}/reveal/tx`, { method: 'POST', body: {} })),
+    getProof: () => run('status-proof', 'GET /proof', () => api(`/v1/rounds/${encodeURIComponent(roundId)}/proof`)),
+    verifyProof: () => run('status-proof', 'POST /v1/proofs/verify', () => api('/v1/proofs/verify', { method: 'POST', body: { proof: latestProof } })),
+    clearOutput: () => { output.textContent = 'Cleared.'; setStatus('status-proof', 'Output cleared'); }
+  };
+
+  document.addEventListener('click', (event) => {
+    const action = event.target && event.target.dataset && event.target.dataset.action;
+    if (!action) return;
+    if (!roundId && !['health', 'capabilities', 'network', 'createRound', 'clearOutput'].includes(action)) {
+      print('ACTION BLOCKED', { message: 'Create a round first.' });
+      return;
+    }
+    actions[action]();
+  });
+
+  seedDefaults();
+})();
+</script>
+</body>
+</html>

@@ -17,6 +17,12 @@ build/
 # generated artifacts
 artifacts/generated/
 *.log
+*.tgz
+*.round-store.json
+round-store*.json
+
+# local test secrets / temp state
+local-secrets/
 
 # OS/editor
 .DS_Store

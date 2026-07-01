@@ -130,7 +130,7 @@ NPM_TN10_WRPC_DISCONNECT=PASS
 NPM_TN10_WRPC_VERDICT=VALIDATED
 ```
 
-## Verdict: VALIDATED for source/build/import/covenant primitives and live TN10 read-only wRPC
+## Verdict: VALIDATED for source/build/import/covenant primitives and live TN10 wRPC status
 
 ### What worked
 
@@ -156,7 +156,7 @@ The built package imports successfully from Node and exposes/constructs:
 
 Runtime construction of `CovenantBinding`, `GenesisCovenantGroup`, and `TransactionOutput` with covenant binding passed.
 
-Live read-only TN10 wRPC also passed using public resolver/Borsh transport. The script resolved a public TN10 endpoint, connected, fetched server info, fetched live blockDAG info, and disconnected cleanly.
+Live TN10 wRPC status also passed using public resolver/Borsh transport. The script resolved a public TN10 endpoint, connected, fetched server info, fetched live blockDAG info, and disconnected cleanly.
 
 ### What did not get proven yet
 
@@ -166,4 +166,4 @@ Live read-only TN10 wRPC also passed using public resolver/Borsh transport. The 
 
 ### Recommendation for the real build
 
-The npm-first path is now strongly plausible for Milestone 1 and Milestone 3 read-only TN10 API work. Before choosing it for TN10 writes/covenant-enforced rounds, test JS/TS transaction construction/signing/broadcast and package wrapping/publishing.
+The npm-first path is now strongly plausible for Milestone 1 and live TN10 API status work. Before choosing it for TN10 writes/covenant-enforced rounds, test JS/TS transaction construction/signing/broadcast and package wrapping/publishing.
