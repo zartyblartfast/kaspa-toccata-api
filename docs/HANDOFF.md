@@ -76,6 +76,8 @@ NO_STATIC_APP_FIXTURES=PASS
 ```text
 package.json
 src/server.cjs
+src/client.cjs
+src/client.mjs
 scripts/api-smoke.sh
 scripts/api-live-contract-smoke.sh
 scripts/basic-web-api-test-smoke.sh
@@ -94,6 +96,7 @@ docs/API_STATUS.md
 docs/NEXT_STEPS.md
 docs/REPO_STRATEGY.md
 docs/BASIC_WEB_DEMO_BUTTONS.md
+docs/ROULETTE_UI_DESIGN_HANDOVER.md
 spikes/npm-toccata-wasm-capability/README.md
 spikes/npm-wrapper-package-capability/README.md
 spikes/npm-wrapper-package-capability/check-wrapper-package.sh
@@ -110,6 +113,7 @@ spikes/rust-toccata-capability/README.md
 - The basic web page state model has been improved: it now includes `New round / reset UI`, clears current round/proof/output/status state, shows a next-action banner, disables transaction buttons until the required state step is done, disables completed `commit/tx`, `close/tx`, and `reveal/tx` buttons once txids are recorded, and treats `live_<phase>_already_recorded` as already complete by fetching/showing existing `tn10Writes[phase].transactionIds`.
 - Button-by-button demo behavior and roulette-stage/proof-of-fairness mapping are documented in `docs/BASIC_WEB_DEMO_BUTTONS.md`. Use this when deciding how the roulette PoC presents commitment, close/entropy target, live entropy, reveal, transaction evidence, and proof verification.
 - The page remains generic/app-agnostic and calls the same `/v1/*` HTTP API surface wrapped by the `kaspa-toccata-api` npm client; it does not load static proof/result fixtures or perform browser-side proof/result substitution.
+- Rejected roulette PoC scaffold: the first `apps/roulette-poc/` implementation proved package-name browser import (`createToccataApiClient` from `kaspa-toccata-api`) and real `/v1/*` API wiring, but the user corrected that its layout was too API-demo-like and should not be preserved as target UI. The server no longer serves `/apps/roulette-poc/*`; `/src/client.mjs` remains served for future browser package imports. Target UI design is documented in `docs/ROULETTE_UI_DESIGN_HANDOVER.md`: two sections only, `Roulette Game` on top using the older `/root/kaspa-fair-foundation/examples/roulette-poc/ui/` table-first chip-placement UI as the visual/interaction starting point, and `Proof of Fairness` below using `/root/kaspa-fair-foundation/examples/roulette-poc/ui-sketches/env095-flowchart-*` as the flowchart starting point.
 - A live-write-enabled server was killed before handoff; do not leave funded-key API processes running after testing.
 
 ## Current blockers / unknowns
@@ -121,9 +125,9 @@ spikes/rust-toccata-capability/README.md
 
 ## Next 3 actions
 
-1. Implement reveal as a real gated TN10 write; do not add dry-run/preflight transaction paths.
-2. Keep JSON persistence as a temporary dev/test seam only; do not let it become the project direction or a substitute for real TN10/Toccata evidence.
-3. Keep API/client smoke coverage enforcing live-TN10-only behavior before any app work.
+1. In the next session, read `docs/ROULETTE_UI_DESIGN_HANDOVER.md` before changing UI code.
+2. Redesign `apps/roulette-poc/` as two sections: top `Roulette Game` using `/root/kaspa-fair-foundation/examples/roulette-poc/ui/` table-first chip-placement behavior, and lower `Proof of Fairness` using `/root/kaspa-fair-foundation/examples/roulette-poc/ui-sketches/env095-flowchart-*` adapted to live API data.
+3. Preserve npm-client API usage (`import { createToccataApiClient } from 'kaspa-toccata-api'`) and keep smoke/ad-hoc checks proving no static round/proof/result JSON, no mock/offline paths, no app-level raw `fetch()`, and fail-closed TN10 writes by default.
 
 ## Do not regress
 

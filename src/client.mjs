@@ -1,5 +1,3 @@
-'use strict';
-
 const DEFAULT_BASE_URL = 'http://127.0.0.1:8787';
 
 class ToccataApiError extends Error {
@@ -16,7 +14,7 @@ class ToccataApiError extends Error {
 class ToccataApiClient {
   constructor({ baseUrl = DEFAULT_BASE_URL, fetchImpl = globalThis.fetch } = {}) {
     if (!fetchImpl) {
-      throw new Error('ToccataApiClient requires fetch; use Node >=18 or pass fetchImpl');
+      throw new Error('ToccataApiClient requires fetch; use a runtime with fetch or pass fetchImpl');
     }
     this.baseUrl = String(baseUrl).replace(/\/+$/, '');
     this.fetchImpl = fetchImpl === globalThis.fetch ? fetchImpl.bind(globalThis) : fetchImpl;
@@ -111,7 +109,6 @@ class ToccataApiClient {
     return this.request('POST', `/v1/rounds/${encodeURIComponent(requiredRoundId(roundId))}/commit/tx`, input);
   }
 
-
   createCloseTx(roundId, input = {}) {
     return this.request('POST', `/v1/rounds/${encodeURIComponent(requiredRoundId(roundId))}/close/tx`, input);
   }
@@ -131,7 +128,7 @@ function createToccataApiClient(options) {
   return new ToccataApiClient(options);
 }
 
-module.exports = {
+export {
   ToccataApiClient,
   ToccataApiError,
   createToccataApiClient

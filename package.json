@@ -49,17 +49,20 @@
   "exports": {
     ".": {
       "types": "./src/client.d.ts",
+      "import": "./src/client.mjs",
       "require": "./src/client.cjs",
-      "default": "./src/client.cjs"
+      "default": "./src/client.mjs"
     },
     "./client": {
       "types": "./src/client.d.ts",
+      "import": "./src/client.mjs",
       "require": "./src/client.cjs",
-      "default": "./src/client.cjs"
+      "default": "./src/client.mjs"
     }
   },
   "files": [
     "src/client.cjs",
+    "src/client.mjs",
     "src/client.d.ts",
     "README.md",
     "LICENSE",

@@ -129,6 +129,30 @@ function sendBasicApiTestPage(res) {
   sendHtml(res, 200, fs.readFileSync(pagePath, 'utf8'));
 }
 
+const STATIC_MODULE_FILES = new Map([
+  ['/src/client.mjs', 'src/client.mjs']
+]);
+
+const STATIC_CONTENT_TYPES = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.mjs': 'text/javascript; charset=utf-8'
+};
+
+function sendStaticModuleFile(res, relativePath) {
+  const filePath = path.join(__dirname, '..', relativePath);
+  const extension = path.extname(filePath);
+  res.writeHead(200, {
+    'content-type': STATIC_CONTENT_TYPES[extension] || 'application/octet-stream',
+    'cache-control': 'no-store',
+    'access-control-allow-origin': '*',
+    'access-control-allow-methods': 'GET,POST,OPTIONS',
+    'access-control-allow-headers': 'content-type'
+  });
+  res.end(fs.readFileSync(filePath));
+}
+
 function sendOptions(res) {
   res.writeHead(204, {
     'access-control-allow-origin': '*',
@@ -1208,6 +1232,12 @@ async function handle(req, res) {
   if (['/', '/demo', '/demo/', '/demo/basic-api-test', '/demo/basic-api-test.html'].includes(url.pathname)) {
     if (req.method !== 'GET') return sendMethodNotAllowed(res);
     sendBasicApiTestPage(res);
+    return;
+  }
+
+  if (STATIC_MODULE_FILES.has(url.pathname)) {
+    if (req.method !== 'GET') return sendMethodNotAllowed(res);
+    sendStaticModuleFile(res, STATIC_MODULE_FILES.get(url.pathname));
     return;
   }
 

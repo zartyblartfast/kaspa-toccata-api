@@ -23,6 +23,7 @@ round-store*.json
 
 # local test secrets / temp state
 local-secrets/
+.hermes/
 
 # OS/editor
 .DS_Store
